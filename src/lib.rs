@@ -2,6 +2,15 @@ use syn::*;
 use quote::*;
 use proc_macro::TokenStream;
 
+fn fix_raw_ident(ident: Ident) -> Ident {
+    let s = ident.to_string();
+    if s.contains("#") {
+        Ident::new(s.split_once('#').unwrap().1, ident.span())
+    } else {
+        ident
+    }
+}
+
 fn is_field_type_of(f: &Field, target: &str) -> bool {
     if let Type::Path(ref ty) = f.ty {
         if let Some(v) = ty.path.segments.first() {
@@ -63,16 +72,11 @@ pub fn test(ts: TokenStream) -> TokenStream {
     );
     let methods = nf.named.iter().cloned().map(
         |f| {
-            if is_field_type_of(&f, "bool") || {
-                if let Some(ty) = get_type_under_option(&f) {
-                    is_type_of(ty, "bool")
-                } else {
-                    false
-                }
-            } {
-                f.ident.unwrap()
+            let ident = fix_raw_ident(f.ident.clone().unwrap());
+            if is_field_type_of(&f, "bool") || { if let Some(ty) = get_type_under_option(&f) { is_type_of(ty, "bool") } else { false } } {
+                ident
             } else {
-                format_ident!("with_{}", f.ident.unwrap().to_string())
+                format_ident!("with_{}", ident.to_string())
             }
         }
     ).zip(nf.named.iter().cloned()).map(|e| {
