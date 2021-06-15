@@ -1,33 +1,25 @@
 use builder::Builder;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum Val {
-    Test,
-    Group,
-}
-
 #[derive(Builder)]
 pub struct Resource {
-    pub inline: Option<bool>,
+    pub inline: bool,
+    pub value: u32,
+    #[default(5)]
+    pub five: i8,
     #[skip]
-    #[default(Val::Test)]
-    pub value: Val,
-    pub r#type: String,
-    pub some: (u32, u32),
-    pub r#match: Option<bool>,
+    #[default(String::from("Hello :D"))]
+    pub hidden: String
 }
 
 fn main() {
     let t: Resource = Resource::builder()
         .inline(false)
-        .with_type(String::from("Test"))
-        .with_some((3, 5))
-        .r#match(true)
+        // .with_hidden(String::from("Test")) - Error
+        .with_value(321)
         .build();
 
-    assert_eq!(t.some, (3, 5));
-    assert_eq!(t.value, Val::Test);
-    assert_eq!(t.inline, Some(false));
-    assert_eq!(t.r#match, Some(true));
-    assert_eq!(t.r#type, String::from("Test"));
+    assert_eq!(t.five, 5);
+    assert_eq!(t.hidden, String::from("Hello :D"));
+    assert_eq!(t.value, 321);
+    assert_eq!(t.inline, false);
 }
