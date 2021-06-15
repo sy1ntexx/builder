@@ -121,7 +121,7 @@ fn get_default_value(f: &Field) -> TokenStream2 {
     }) {
         let tokens: TokenStream = a.clone().tokens.into();
         let value: Expr = parse(tokens).unwrap();
-        return quote! { ::core::option::Option::Some(#value) };
+        return quote! { ::core::option::Option::Some#value };
     }
     return quote! { ::core::default::Default::default() };
 }
