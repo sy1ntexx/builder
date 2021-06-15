@@ -72,11 +72,10 @@ pub fn test(ts: TokenStream) -> TokenStream {
     );
     let methods = nf.named.iter().cloned().map(
         |f| {
-            let ident = fix_raw_ident(f.ident.clone().unwrap());
             if is_field_type_of(&f, "bool") || { if let Some(ty) = get_type_under_option(&f) { is_type_of(ty, "bool") } else { false } } {
-                ident
+                f.ident.unwrap()
             } else {
-                format_ident!("with_{}", ident.to_string())
+                format_ident!("with_{}", fix_raw_ident(f.ident.unwrap()).to_string())
             }
         }
     ).zip(nf.named.iter().cloned()).map(|e| {

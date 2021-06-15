@@ -5,7 +5,8 @@ pub struct Resource {
     pub inline: Option<bool>,
     pub value: u32,
     pub r#type: String,
-    pub some: (u32, u32)
+    pub some: (u32, u32),
+    pub r#match: Option<bool>
 }
 
 fn main() {
