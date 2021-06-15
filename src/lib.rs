@@ -101,7 +101,7 @@ pub fn test(ts: TokenStream) -> TokenStream {
     };
 
     let out = quote! {
-        #[derive(Default)]
+        #[derive(Debug, Clone, Default)]
         pub struct #b_name<#generics> #where_clause {
             #(#fields)*
         }
