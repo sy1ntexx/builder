@@ -1,6 +1,15 @@
 
-# Builder. Implementation of `builder` pattern in Rust
-### Example usage can be found in `examples/01-test.rs`
+# Builder. Implementation of `builder` pattern in Rust.
+
+## Install
+To use library just add it to dependencies in your `Cargo.toml` file.
+```toml
+[dependencies]
+builder = { git = "https://github.com/sy1ntexx/builder" }
+```
+
+## Usage
+Example usage can be found in `examples/01-test.rs`.
 ```rs
 use builder::Builder;
 
