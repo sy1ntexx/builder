@@ -2,7 +2,7 @@ use syn::*;
 use quote::*;
 use proc_macro::TokenStream;
 
-fn is_type_of(f: &Field, target: &str) -> bool {
+fn is_field_type_of(f: &Field, target: &str) -> bool {
     if let Type::Path(ref ty) = f.ty {
         if let Some(v) = ty.path.segments.first() {
             return v.ident.to_string().contains(target);
@@ -11,8 +11,17 @@ fn is_type_of(f: &Field, target: &str) -> bool {
     false
 }
 
+fn is_type_of(ty: &Type, target: &str) -> bool {
+    if let Type::Path(ref ty) = ty {
+        if let Some(v) = ty.path.segments.first() {
+            return v.ident.to_string().contains(target);
+        }
+    }
+    false
+}
+
 fn get_type_under_option(f: &Field) -> Option<&Type> {
-    if is_type_of(f, "Option") {
+    if is_field_type_of(f, "Option") {
         if let Type::Path(ref tp) = f.ty {
             if let PathArguments::AngleBracketed(ref ag) = tp.path.segments.first().unwrap().arguments {
                 if let GenericArgument::Type(ref ty) = ag.args.first().unwrap() {
@@ -45,7 +54,7 @@ pub fn test(ts: TokenStream) -> TokenStream {
         |f| {
             let ident = f.ident.as_ref().unwrap();
             let ty = &f.ty;
-            if is_type_of(f, "Option") {
+            if is_field_type_of(f, "Option") {
                 quote! { #ident: #ty, }
             } else {
                 quote! { #ident: std::option::Option<#ty>, }
@@ -54,7 +63,13 @@ pub fn test(ts: TokenStream) -> TokenStream {
     );
     let methods = nf.named.iter().cloned().map(
         |f| {
-            if is_type_of(&f, "bool") {
+            if is_field_type_of(&f, "bool") || {
+                if let Some(ty) = get_type_under_option(&f) {
+                    is_type_of(ty, "bool")
+                } else {
+                    false
+                }
+            } {
                 f.ident.unwrap()
             } else {
                 format_ident!("with_{}", f.ident.unwrap().to_string())
@@ -80,7 +95,7 @@ pub fn test(ts: TokenStream) -> TokenStream {
         |f| {
             let name = f.ident.as_ref().unwrap();
             let expect_message = format!("{} cannot be None.", name.to_string());
-            let value = if is_type_of(f, "Option") {
+            let value = if is_field_type_of(f, "Option") {
                 quote! { self.#name }
             } else {
                 quote! { self.#name.expect(#expect_message) }

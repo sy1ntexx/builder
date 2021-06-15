@@ -2,7 +2,7 @@ use builder::Builder;
 
 #[derive(Builder)]
 pub struct Resource {
-    pub inline: bool,
+    pub inline: Option<bool>,
     pub value: u32
 }
 
